@@ -29,6 +29,9 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
 
+# 设置qb.service文件的权限为644
+chmod 644 $service_file
+
 # 提示服务单元文件已创建
 echo "Systemd服务单元文件已创建：$service_file"
 
