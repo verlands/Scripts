@@ -31,6 +31,20 @@ EOF
 
 # 提示服务单元文件已创建
 echo "Systemd服务单元文件已创建：$service_file"
-echo "请运行以下命令以启用和启动qbittorrent-nox服务："
-echo "sudo systemctl enable qb.service"
-echo "sudo systemctl start qb.service"
+
+# 启用qbittorrent-nox服务
+systemctl enable qb.service
+
+# 启动qbittorrent-nox服务
+systemctl start qb.service
+
+# 提示启用和启动服务的命令
+echo "qbittorrent-nox服务已启用和启动。"
+echo "要停止服务，请运行：sudo systemctl stop qb.service"
+echo "要查询服务状态，请运行：sudo systemctl status qb.service"
+
+# 获取本机IP地址
+ip_address=$(hostname -I | awk '{print $1}')
+
+# 提示打开qbittorrent的命令
+echo "要访问qbittorrent，请在浏览器中打开：http://$ip_address:12380"
