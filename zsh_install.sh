@@ -22,7 +22,7 @@ sed -i 's/^plugins=(.*)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting
 # 启用 autosuggest-accept 快捷键
 echo 'bindkey "," autosuggest-accept' >> ~/.zshrc
 
-# 修改终端默认 shell 为 当前在用的shell（这里是zsh）
+# 修改终端默认 shell 为 zsh
 chsh -s $(which zsh)
 
 # 重新启动 zsh
