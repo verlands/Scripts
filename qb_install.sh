@@ -234,8 +234,9 @@ rm /root/qb_password_gen
 ###
 ################################################
 
-# 下载autobrr
-wget $(curl -s https://api.github.com/repos/autobrr/autobrr/releases/latest | grep download | grep linux_x86_64 | cut -d\" -f4)
+# 下载autobrr, 1.37 和 1.38 直接安装有问题，除非先装36，再装新版
+# wget $(curl -s https://api.github.com/repos/autobrr/autobrr/releases/latest | grep download | grep linux_x86_64 | cut -d\" -f4)
+wget https://github.com/autobrr/autobrr/releases/download/v1.36.0/autobrr_1.36.0_linux_x86_64.tar.gz
 
 # 解压 autobrr 和 autobrrctl 到 /usr/local/bin，如果不是root用户，可以解压到 ~/.bin 目录内
 sudo tar -C /usr/local/bin -xzf autobrr*.tar.gz
