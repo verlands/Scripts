@@ -27,3 +27,6 @@ chsh -s $(which zsh)
 
 # 重新启动 zsh
 exec zsh
+
+# 在脚本最后添加删除自身的命令
+rm -- "$0" && exit
