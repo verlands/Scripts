@@ -57,8 +57,8 @@ fi
 service_file="/etc/systemd/system/qb.service"
 
 # 创建并编辑服务单元文件
-cat << EOF > $service_file 这行不知道有没有问题
 # sudo tee $service_file <<EOF
+cat << EOF > $service_file
 [Unit]
 Description=qBittorrent Daemon Service
 After=network.target
