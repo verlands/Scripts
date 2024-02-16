@@ -353,8 +353,28 @@ systemctl daemon-reload
 # 添加 qb 和 autobrr 命令别名
 echo "alias qb=\"service qb\"" >> ~/.zshrc
 echo "alias auto=\"service autobrr\"" >> ~/.zshrc
-# 使得别名生效
+
+
+# ##### 请注意该命令在bash脚本中运行会出错，虽然名别会生效，但不提倡这种做法 
+# # 使得别名生效
+# source ~/.zshrc
+# ##### 应该选择创建一个临时Zsh脚本来执行source .zshrc命令
+cat << 'EOF' > /tmp/source_zshrc.sh
+#!/bin/zsh
+echo "正在 source ~/.zshrc ..."
 source ~/.zshrc
+echo ".zshrc 载入完成。"
+EOF
+# 修改该脚本的权限，使其可执行
+chmod +x /tmp/source_zshrc.sh
+# 当Bash脚本完成后自动运行该Zsh脚本
+echo "Zsh 脚本将被执行，以让别名改动立即生效"
+zsh /tmp/source_zshrc.sh
+# 删除临时Zsh脚本
+rm /tmp/source_zshrc.sh
+
+
+
 
 # 启用qbittorrent-nox服务
 systemctl enable qb.service
