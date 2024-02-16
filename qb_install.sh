@@ -86,12 +86,16 @@ systemctl daemon-reload
 
 # 启用qbittorrent-nox服务
 systemctl enable qb.service
+echo "Test: 1"
 
 # 启动qbittorrent-nox服务
 systemctl start qb.service
+echo "Test: 2"
+sleep 5
 
 # 关闭qbittorrent-nox服务
 systemctl stop qb.service
+echo "Test: 3"
 
 # 提示用户输入用户名和密码
 read -p "请输入 QB WebUI 登录用户名：" username
