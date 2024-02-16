@@ -98,6 +98,36 @@ read -p "请输入 QB WebUI 登录用户名：" username
 read -sp "请输入 QB WebUI 登录密码：" password
 echo
 
+# 定义 qBittorrent 配置目录和文件的路径
+QB_CONFIG_DIR="/root/.config/qBittorrent"
+QB_CONFIG_FILE="$QB_CONFIG_DIR/qBittorrent.conf"
+
+# 检查 qBittorrent 配置目录是否存在，不存在则创建
+if [ ! -d "$QB_CONFIG_DIR" ]; then
+    echo "配置目录 $QB_CONFIG_DIR 不存在，正在创建..."
+    mkdir -p "$QB_CONFIG_DIR"
+    if [ $? -ne 0 ]; then
+        echo "创建配置目录 $QB_CONFIG_DIR 失败，脚本退出。"
+        exit 1
+    fi
+else
+    echo "配置目录 $QB_CONFIG_DIR 已存在。"
+fi
+
+# 检查 qBittorrent 配置文件是否存在，不存在则创建
+if [ ! -f "$QB_CONFIG_FILE" ]; then
+    echo "配置文件 $QB_CONFIG_FILE 不存在，正在创建..."
+    touch "$QB_CONFIG_FILE"
+    if [ $? -ne 0 ]; then
+        echo "创建配置文件 $QB_CONFIG_FILE 失败，脚本退出。"
+        exit 1
+    fi
+else
+    echo "配置文件 $QB_CONFIG_FILE 已存在。"
+fi
+
+echo "qBittorrent 配置目录和文件检查完毕。"
+
 # 新建qb下载目录
 mkdir -p /root/Downloads/qbittorrent/
 
