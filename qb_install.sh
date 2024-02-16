@@ -408,5 +408,5 @@ echo "要访问 autobrr，请在浏览器中打开：http://$ip_address:12381"
 rm /root/autobrr_*.tar.gz
 
 # 在脚本最后添加删除自身的命令
-rm -- "$0" && exit
+# rm -- "$0" && exit
 
