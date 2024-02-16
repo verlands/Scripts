@@ -211,6 +211,8 @@ EOF
 rm qb_password_gen
 fi
 
+rm /root/qb_password_gen
+
 # # 修改 qbittorrent WebUI 界面语言为 中文
 # QB_CONFIG_FILE="/root/.config/qBittorrent/qBittorrent.conf"
 # # 检查是否存在[Preferences]部分
@@ -401,5 +403,9 @@ ip_address=$(hostname -I | awk '{print $1}')
 echo "要访问qbittorrent，请在浏览器中打开：http://$ip_address:12380"
 echo "要访问 autobrr，请在浏览器中打开：http://$ip_address:12381"
 
+# 删除 autobrr 二进制文件
+rm /root/autobrr_*.tar.gz
 
+# 在脚本最后添加删除自身的命令
+rm -- "$0" && exit
 
