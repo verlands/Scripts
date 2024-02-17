@@ -275,6 +275,63 @@ EOF
 echo "Autobrr 守护进程已创建：$AUTOBRR_SERVICE"
 
 
+# 创建 brr 脚本
+BRR_SCRIPT_PATH="/usr/local/bin/brr"
+cat > "$BRR_SCRIPT_PATH" <<'EOL'
+#!/bin/bash
+
+# 函数定义: 更新 autobrr
+update_autobrr() {
+    # echo "更新 autbrr 的逻辑（需填入实际的更新脚本命令）"
+    sudo systemctl stop autobrr.service
+    wget $(curl -s https://api.github.com/repos/autobrr/autobrr/releases/latest | grep download | grep linux_x86_64 | cut -d\" -f4)
+    sudo tar -C /usr/local/bin -xzf autobrr*.tar.gz
+    rm autobrr_*.tar.gz
+    sudo systemctl start autobrr.service
+    echo "autobrr 更新成功，已重启"
+}
+
+# 检查是否有至少一个参数
+if [ $# -eq 0 ]; then
+    echo "用法: brr [start|stop|status|enable|disable|restart|update]"
+    exit 1
+fi
+
+case $1 in
+    start)
+        sudo systemctl start autobrr.service
+        ;;
+    stop)
+        sudo systemctl stop autobrr.service
+        ;;
+    status)
+        sudo systemctl status autobrr.service
+        ;;
+    enable)
+        sudo systemctl enable autobrr.service
+        ;;
+    disable)
+        sudo systemctl disable autobrr.service
+        ;;
+    restart)
+        sudo systemctl restart autobrr.service
+        ;;
+    update)
+        update_autobrr
+        ;;
+    *)
+        echo "Invalid command: $1"
+        echo "用法: brr [start|stop|status|enable|disable|restart|update]"
+        ;;
+esac
+EOL
+
+# 给予 brr 脚本执行权限
+sudo chmod +x "$BRR_SCRIPT_PATH"
+
+# 提示 brr 控制脚本已创建并可用
+echo "brr 控制脚本已创建并可用：$BRR_SCRIPT_PATH"
+
 
 
 
