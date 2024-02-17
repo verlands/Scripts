@@ -248,6 +248,7 @@ mkdir -p ~/.config/autobrr
 CONFIG_FILE="/root/.config/autobrr/config.toml"
 curl -o $CONFIG_FILE -L https://raw.githubusercontent.com/autobrr/autobrr/develop/config.toml
 # 修改配置文件，使得可以远程连接
+# 注意：如果CONFIG_FILE文件里面找不到127.0.0.1，那么下面的命令将不会执行替换操作
 sudo sed -i 's/host = "127.0.0.1"/host = "0.0.0.0"/' $CONFIG_FILE
 # 修改网页端口默认端口
 sudo sed -i 's/port = 7474/port = 12381/' $CONFIG_FILE
