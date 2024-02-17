@@ -29,4 +29,4 @@ chsh -s $(which zsh)
 exec zsh
 
 # 在脚本最后添加删除自身的命令
-rm -- "$0" && exit
+# rm -- "$0" && exit
