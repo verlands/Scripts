@@ -100,7 +100,7 @@ systemctl daemon-reload
 
 # 提示用户输入用户名和密码
 read -p "请输入 QB WebUI 登录用户名：" username
-read -sp "请输入 QB WebUI 登录密码：" password
+read -p "请输入 QB WebUI 登录密码：" password
 echo
 
 # 定义 qBittorrent 配置目录和文件的路径
@@ -333,6 +333,9 @@ sudo chmod +x "$BRR_SCRIPT_PATH"
 # 提示 brr 控制脚本已创建并可用
 echo "brr 控制脚本已创建并可用：$BRR_SCRIPT_PATH"
 
+# 删除 autobrr 二进制文件
+rm /root/autobrr_*.tar.gz
+
 
 
 
@@ -390,23 +393,86 @@ qb_task:
   delete_data: true
 EOL
 
-# 检查 autoremove-torrents 的路径，并设置计划任务
-echo "正在设置计划任务..."
-art_path=$(which autoremove-torrents)
+# #####
+# ##### 通过设置crontab -e来定时运行autoremove-torrents脚本，但是最快只能1分钟，无法设置秒钟
+# #####
+# # 检查 autoremove-torrents 的路径，并设置计划任务
+# echo "正在设置计划任务..."
+# art_path=$(which autoremove-torrents)
 
-( crontab -l 2>/dev/null | grep -v "$art_path"; echo "*/1 * * * * $art_path --conf=${art_config_file} --log=${art_log_folder}" ) | crontab -
+# ( crontab -l 2>/dev/null | grep -v "$art_path"; echo "*/1 * * * * $art_path --conf=${art_config_file} --log=${art_log_folder}" ) | crontab -
 
-# 检查计划任务是否设置成功
-if [ $? -ne 0 ]; then
-    echo "添加或更新计划任务失败，退出。"
-    exit 1
-fi
-
-echo "autoremove-torrents 设置成功，将每 1 分钟运行一次。"
-
+# # 检查计划任务是否设置成功
+# if [ $? -ne 0 ]; then
+#     echo "添加或更新计划任务失败，退出。"
+#     exit 1
+# fi
+# echo "autoremove-torrents 设置成功，将每 1 分钟运行一次。"
 
 
+#####
+##### 设置shell脚本来使得autoremove-torrents脚本10秒钟运行一次
+#####
+# 指定你的 autoremove-torrents 定时任务脚本的路径
+SCHEDULE_SCRIPT_PATH="/root/.config/autoremove-torrents/art_schedule.sh"
 
+# 创建art_schedule.sh脚本
+cat > "$SCHEDULE_SCRIPT_PATH" <<EOF
+#!/bin/bash
+# art_scheduler.sh
+# 设定命令
+WHOLE_COMMAND="/usr/local/bin/autoremove-torrents --conf=/root/.config/autoremove-torrents/config.yml --log=/root/.config/autoremove-torrents/logs/"
+
+# 设定脚本运行间隔时间，可以自行修改
+INTERVAL=5
+
+# 计算下一次执行的确切时间
+NEXT_RUN=$(date +%s)
+
+while true; do
+  # 在计划执行时间之后运行命令
+  if [[ $(date +%s) -ge $NEXT_RUN ]]; then
+    $WHOLE_COMMAND
+
+    # 计划下一次运行时间
+    NEXT_RUN=$(($NEXT_RUN+$INTERVAL))
+
+    # 如果错过了计划时间，重置计划时间防止连续执行
+    CURRENT_TIME=$(date +%s)
+    if [[ $NEXT_RUN -le $CURRENT_TIME ]]; then
+      NEXT_RUN=$(($CURRENT_TIME+$INTERVAL))
+    fi
+  fi
+
+  # 短暂休眠以防止CPU过载
+  sleep 1
+done
+EOF
+
+# 赋予执行权限
+chmod +x "$SCHEDULE_SCRIPT_PATH"
+
+# 设置开机启动运行autoremove-torrents脚本
+(crontab -l 2>/dev/null; echo "@reboot screen -dmS autoremove-torrents $SCHEDULE_SCRIPT_PATH >> /var/log/autoremove-torrents.log 2>&1") | crontab -
+
+# 设置脚本安装运行后就启动脚本，上面设置的是开机启动
+apt-get -qqy install screen
+screen -dmS autoremove-torrents $SCHEDULE_SCRIPT_PATH
+
+# Echo成功消息
+echo "autoremove-torrents的定时任务已添加"
+
+
+
+
+
+
+
+
+
+#####
+##### 脚本安装完的输出，各软件使用
+#####
 
 # 更新配置
 systemctl daemon-reload
@@ -445,15 +511,30 @@ systemctl enable autobrr
 systemctl start qb.service
 systemctl start autobrr
 
-# 提示启用和启动服务的命令
-echo "qbittorrent-nox 和 autobrr 服务已启用和启动。"
+clear
+echo "脚本安装完毕并启动，且设置开机启动"
+echo
+echo "---------------------------------------------------"
+echo
+echo "qbittorrent 命令使用："
 echo "qb enable: 设置开机启动"
 echo "qb disable: 关闭开机启动"
 echo "qb start: 开启服务"
 echo "qb stop: 关闭服务"
 echo "qb restart: 重启服务"
 echo "qb status: 查看服务状态"
-echo "autobrr同理，只需要将上面命令里面的 qb 改为 auto"
+echo "---------------------------------------------------"
+echo "autobrr 命令使用："
+echo "brr enable: 设置开机启动"
+echo "brr disable: 关闭开机启动"
+echo "brr start: 开启服务"
+echo "brr stop: 关闭服务"
+echo "brr restart: 重启服务"
+echo "brr status: 查看服务状态"
+echo "brr update: 更新 autobrr 版本"
+echo "---------------------------------------------------"
+echo "autoremove-torrents 的配置文件在 /root/.config/autoremove-torrents/config.yml，请自行修改"
+echo "---------------------------------------------------"
 
 # 获取本机IP地址
 ip_address=$(hostname -I | awk '{print $1}')
@@ -461,9 +542,6 @@ ip_address=$(hostname -I | awk '{print $1}')
 # 提示打开qbittorrent的命令
 echo "要访问qbittorrent，请在浏览器中打开：http://$ip_address:12380"
 echo "要访问 autobrr，请在浏览器中打开：http://$ip_address:12381"
-
-# 删除 autobrr 二进制文件
-rm /root/autobrr_*.tar.gz
 
 # 在脚本最后添加删除自身的命令
 # rm -- "$0" && exit
